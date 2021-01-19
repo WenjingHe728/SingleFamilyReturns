@@ -1,54 +1,58 @@
 
 ########################################################################################
 
-# this script reads AHS data into data_ahs
+# This script reads AHS data and save data_ahs.RData.
+# See detailed description in Appendix A.1 Data files.
+# To run this script, you need to download AHS flat csv files. You may need to modify the code to accommodate any new AHS format.
+# Or, you can skip this script and data_ahs.RData in the code folder will be used.
 
 ########################################################################################
-
-
-# download AHS flat csv files from https://www.census.gov/programs-surveys/ahs/data.html
-# code description is at https://www.census.gov/data-tools/demo/codebook/ahs/ahsdict.html
-
-filenames=c('tahs85n.csv',
-            'tahs87n.csv',
-            'tahs89n.csv',
-            'tahs91n.csv',
-            'tahs93n.csv',
-            'tahs95n.csv',
-            'tAHS1997N.csv',
-            'tAHS1999N.csv',
-            'tAHS2001N.csv',
-            'tAHS2003N.csv',
-            'tAHS2005N.csv',
-            'tAHS2007N.csv',
-            'tAHS2009N.csv',
-            'ahs2011n.csv',
-            'ahs2013n.csv',
-            'ahs2015n.csv',
-            'ahs2017n.csv',
-            'ahs2019n.csv')
-
 require(tidyverse)
 
-columns=c('MOVED','HHMOVE', 'MOVE', 'MOVE1', 'CONTROL', 'VALUE', 'FRENT', 'RENT', 'BATHS', 'HALFB', 'BUILT', 'BEDRMS', 'UNITSF', 'SMSA', 'TYPE', 'TENURE', 'AIRSYS', 'CONDO', 'NUNIT2', 'LOT', 'ROOMS', 'EBAR', 'PROJ', 'RCNTRL', 'EFRIDGE', 'ZINC', 'VACANCY', 'WEIGHT')
+# change file location accordingly
+filenames=c('D:/Data/AHS/CVS/tahs85n.csv',
+            'D:/Data/AHS/CVS/tahs87n.csv',
+            'D:/Data/AHS/CVS/tahs89n.csv',
+            'D:/Data/AHS/CVS/tahs91n.csv',
+            'D:/Data/AHS/CVS/tahs93n.csv',
+            'D:/Data/AHS/CVS/tahs95n.csv',
+            'D:/Data/AHS/CVS/tAHS1997N.csv',
+            'D:/Data/AHS/CVS/tAHS1999N.csv',
+            'D:/Data/AHS/CVS/tAHS2001N.csv',
+            'D:/Data/AHS/CVS/tAHS2003N.csv',
+            'D:/Data/AHS/CVS/tAHS2005N.csv',
+            'D:/Data/AHS/CVS/tAHS2007N.csv',
+            'D:/Data/AHS/CVS/tAHS2009N.csv',
+            'D:/Data/AHS/CVS/ahs2011n.csv',
+            'D:/Data/AHS/CVS/ahs2013n.csv',
+            'D:/Data/AHS/CVS/ahs2015n.csv',
+            'D:/Data/AHS/CVS/ahs2017n.csv',
+            'D:/Data/AHS/CVS/ahs2019n.csv')
 
-data_ahs=read.csv(paste0(getwd(),'/data/',filenames[1]),stringsAsFactors = F,header=T)%>%
+columns=c('MOVED','HHMOVE', 'MOVE', 'MOVE1', 'CONTROL', 'VALUE', 'FRENT', 'RENT', 'BATHS', 'HALFB', 'BUILT', 'BEDRMS', 'UNITSF', 'SMSA', 'TYPE', 'TENURE', 'AIRSYS', 'CONDO', 'NUNIT2', 'LOT', 'ROOMS', 'EBAR', 'PROJ', 'RCNTRL', 'EFRIDGE', 'ZINC', 'VACANCY', 'WEIGHT','moved','hhmove', 'move', 'move1', 'control', 'value', 'frent', 'rent', 'baths', 'halfb', 'built', 'bedrms', 'unitsf', 'smsa', 'type', 'tenure', 'airsys', 'condo', 'nunit2', 'lot', 'rooms', 'ebar', 'proj', 'rcntrl', 'efridge', 'zinc', 'vacancy', 'weight')
+
+data_ahs=read.csv(filenames[1],stringsAsFactors = F,header=T)%>%
   select(any_of(columns))%>%
   mutate(Year=1985)
 
 for(i in 2:length(filenames))
 {
-  print(i)
+  print(filenames[i])
 
   if(i!=15)
   {
-    data=read.csv(paste0(getwd(),'/data/',filenames[i]),stringsAsFactors = F,header=T)%>%
-      select(any_of(columns))%>%
+    data=read.csv(filenames[i],stringsAsFactors = F,header=T)%>%
+      select(any_of(columns))
+    
+    colnames(data)=toupper(colnames(data)) # some column names are lowercase for 2007 file. 
+    
+    data=data%>%
       mutate(Year=1985+(i-1)*2)
   }
-  else # the downloaded flat file for 2013 is not well formated so we have to manually get its header row
+  else 
+    # the downloaded flat file for 2013 is not well formated so we have to manually get its header row
   {
-    data=read.csv(paste0(getwd(),'/data/',filenames[i]),stringsAsFactors = F,nrow=2,header=F)
+    data=read.csv(filenames[i],stringsAsFactors = F,nrow=2,header=F)
     cols=c()
     for(u in 1:2)
     {
@@ -58,15 +62,14 @@ for(i in 2:length(filenames))
           cols=c(cols,data[u,v])
       }
     }
-    
-    data=read.csv(paste0(getwd(),'/data/',filenames[i]),stringsAsFactors = F,skip=2,header=F)
+    data=read.csv(filenames[i],stringsAsFactors = F,skip=2,header=F)
     colnames(data)=cols
     
     data=data%>%
       select(any_of(columns))%>%
       mutate(Year=1985+(i-1)*2)
   }
-
+  
   cols=c('TENURE','AIRSYS','CONDO','NUNIT2','EBAR','PROJ','RCNTRL','SMSA','VACANCY','MOVE1')
   for(c in cols)
   {
@@ -85,11 +88,13 @@ data_ahs=data_ahs%>%
                        ifelse(is.na(HHMOVE)==F,HHMOVE,
                               ifelse(is.na(MOVE1)==F,MOVE1,NA))))
 
-# only 1 record per house
+# check there is only 1 record per house
 # test=data_ahs%>%group_by(CONTROL,SMSA,Year)%>%summarize(n=n())
 
 # save data for quicker loading later.
 saveRDS(data_ahs,file='data_ahs.RData')
 
 rm(list=ls())
+
+
             

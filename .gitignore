@@ -19,3 +19,6 @@
 /data_ahs.RData
 /data/tahs85n.csv
 /data/AHS links.txt
+/sas replicate/*.sas
+/read AHS data sas.R
+/AHS data links.txt
