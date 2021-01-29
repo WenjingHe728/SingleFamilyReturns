@@ -22,3 +22,6 @@
 /sas replicate/*.sas
 /read AHS data sas.R
 /AHS data links.txt
+/debug_sample_match.R
+/2015 AHS Variable Crosswalk.csv
+/not shared
