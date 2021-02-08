@@ -58,7 +58,8 @@ write.csv(pr%>%select(region,Year,weight_nonparam,rp_owned),
 #save region-year weighted median rent-to-price ratio to csv file
 write.csv(pr%>%
             group_by(region,Year)%>%
-            summarize(rp_median=rp_weighted_median(rp_owned,weight_nonparam)),
+            summarize(rp_median=rp_weighted_median(rp_owned,weight_nonparam),
+                      WEIGHT=sum(WEIGHT)),
           file=paste0('rp_medians_',file_suffix,'.csv'),row.names = F)
 
 

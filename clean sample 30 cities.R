@@ -6,8 +6,14 @@ require(tidyverse)
 
 naSet=c(NA,-6,-9) # -6: not applicable, -9: not reported
 
+
+data_ahs=bind_rows(readRDS(file='data_ahs_to2013.RData'),
+                   readRDS(file='data_ahs_to2013_metro.RData')%>%
+                     inner_join(include_metro_sample%>%filter(includeBit==1)%>%select(year),
+                                by=c('Year'='year')))
+
 #get data from the 30 cities with most coverage in AHS data
-data_ahs=readRDS(file='data_ahs_to2013.RData')%>%
+data_ahs=data_ahs%>%
   inner_join(read.csv('30cities.csv',header=T)%>%select(SMSA),by='SMSA')%>%
   mutate(ZINC=ifelse(ZINC%in%naSet,NA,ZINC),
          VALUE=ifelse(VALUE%in%naSet,NA,VALUE),

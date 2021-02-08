@@ -4,7 +4,10 @@
 require(tidyverse)
 require(readxl)
 
-data_ahs_from2015=readRDS(file='data_ahs_from2015.RData')
+data_ahs_from2015=bind_rows(readRDS(file='data_ahs_from2015.RData'),
+                   readRDS(file='data_ahs_from2015_metro.RData')%>%
+                     inner_join(include_metro_sample%>%filter(includeBit==1)%>%select(year),
+                                by=c('Year'='year')))
 
 # AHS changed sampling in 2015. Before, it has data for each city. After, it has data for 15 biggest metro.
 # find msa for the 15 metro areas sampled after 2015, then merge with data before 2015 based on msa
@@ -38,7 +41,12 @@ data_ahs_from2015=data_ahs_from2015%>%
   inner_join(keep_cbsa_msa,by='OMB13CBSA')%>%
   select(-msa)
 
-data_ahs_to2013=readRDS(file='data_ahs_to2013.RData')%>%
+data_ahs_to2013=bind_rows(readRDS(file='data_ahs_to2013.RData'),
+                            readRDS(file='data_ahs_to2013_metro.RData')%>%
+                              inner_join(include_metro_sample%>%filter(includeBit==1)%>%select(year),
+                                         by=c('Year'='year')))
+
+data_ahs_to2013=data_ahs_to2013%>%
   inner_join(keep_cbsa_msa,by=c('SMSA'='msa'))%>%
   select(-SMSA)
 

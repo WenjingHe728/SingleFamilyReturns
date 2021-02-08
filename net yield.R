@@ -13,7 +13,7 @@ credit = 0.0073; #credit loss on rent
 #load calculated median weighted rent-to-price ratio
 rp=read.csv(paste0('rp_medians_',file_suffix,'.csv'),header=T,stringsAsFactors = F)%>%
   mutate(rp=rp_median)%>%
-  select(region,Year,rp)
+  select(region,Year,rp,WEIGHT)
 
 #load calculated vacancy data
 vac=read.csv(paste0('vac_data_',file_suffix,'.csv'),header=T,stringsAsFactors = F)%>%
@@ -36,6 +36,7 @@ panel=expand_grid(Year=min(rp$Year):(max(rp$Year)+1),region=unique(rp$region))%>
   arrange(region,Year)%>%
   group_by(region)%>%
   mutate(interp_rp=na.approx(rp,x=Year,rule=2), #interp for missing years
+         interp_WEIGHT=na.approx(WEIGHT,x=Year,rule=2),
          interp_tax=na.approx(tax_rate,x=Year,rule=2),
          interp_vac=na.approx(vac_rate,x=Year,rule=2),
          net_yield=interp_rp*(1-interp_vac)*(1-mgmt-credit)-interp_tax/1000-ins_rate-repairs-capex

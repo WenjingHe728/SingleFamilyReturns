@@ -52,10 +52,11 @@ hpa$place_id=as.numeric(hpa$place_id)
 
 net_yield_ts=net_yield%>%
   group_by(Year)%>%
-  summarize(gross_yield=mean(interp_rp),
-            net_yield=mean(net_yield), #no extrapolation
-            net_yield_1=mean(net_yield_1), #extrapolate tax using growth rate from 2005 to 2012
-            net_yield_0.5=mean(net_yield_0.5)#extrapolate tax using half of the growth rate from 2005 to 2012
+  summarize(gross_yield=weighted.mean(interp_rp,interp_WEIGHT),#todo: weight by population
+            net_yield=weighted.mean(net_yield,interp_WEIGHT), #no extrapolation
+            net_yield_1=weighted.mean(net_yield_1,interp_WEIGHT), #extrapolate tax using growth rate from 2005 to 2012
+            net_yield_0.5=weighted.mean(net_yield_0.5,interp_WEIGHT)
+            #extrapolate tax using half of the growth rate from 2005 to 2012
             )%>%
   inner_join(hpa%>%group_by(yr)%>%summarize(hpa=mean(hpa)),by=c('Year'='yr'))
 
@@ -64,7 +65,7 @@ ggplot(data=net_yield_ts,aes(x=Year))+geom_line(aes(y=net_yield,color='net yield
 #Figure 4
 net_yield_region=net_yield%>%
   group_by(name,cbsa,region)%>%
-  summarize(net_yield=mean(net_yield))%>%
+  summarize(net_yield=weighted.mean(net_yield,interp_WEIGHT))%>%
   inner_join(hpa%>%group_by(place_id)%>%summarize(hpa=mean(hpa)),by=c('cbsa'='place_id'))
 
 ggplot(data=net_yield_region,aes(x=hpa,y=net_yield))+geom_point()+geom_text(aes(label=name))
