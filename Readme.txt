@@ -1,8 +1,16 @@
-Run main.R to generate net yields. 
+Steps to run the code:
+- Open RStudio
+- setwd('D:/Dropbox/Wenjing Andrea/Single family returns')
+- source('main.R')
 
-The code will save intermediary and final results to .csv files.
 
-The final result is net_yield_30cities.csv and net_yield_15metros.csv. The first covers cities from 1985 to 2014. The second covers 15 largest metropolitan areas from 1985 to 2020.
+The master file is 'main.R'. Please run this file to generate net yields. In 'main.R', you can modify 'include_metro_sample' to toggle on/off the inclusion of metro samples.
+
+Folders:
+
+- input data: input data after processing raw data from AHS
+- output intermediate: all output .csv files for intermediate results. These files may be used for debugging and plotting charts.
+- output final: final .csv files for net yields. The final result is net_yield_30cities.csv and net_yield_15metros.csv. The first covers cities from 1985 to 2014. The second covers 15 largest metropolitan areas from 1985 to 2020.
 
 Columns in the net_yield_xxx.csv file:
 - Year
@@ -20,5 +28,3 @@ Columns in the net_yield_xxx.csv file:
 - extrap_tax_0.5: extrapolate tax after 2012 using half the growth rate from 2005 to 2012
 - net_yield_1: net yield using extrap_tax_1
 - net_yield_0.5: net yield using extrap_tax_0.5
-
-You can also use plot figure.R to check the result. The figures are not nicely formatted but can be used to compare with figures in the paper.
